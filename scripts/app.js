@@ -1,4 +1,5 @@
 ﻿import { initialEvents } from './data.js';
+import { icons } from './icons.js';
 
 // Application State
 const state = {
@@ -12,7 +13,6 @@ const state = {
 // DOM Element References
 const elements = {
   searchInput: document.getElementById('search-input'),
-  clearSearchBtn: document.getElementById('clear-search-btn'),
   filterButtons: document.querySelectorAll('.filter-btn'),
   eventsGrid: document.getElementById('events-grid'),
   emptyState: document.getElementById('empty-state'),
@@ -79,6 +79,7 @@ function renderEvents() {
     .map(event => {
       const isBookmarked = state.savedEventIds.has(event.id);
       const spotsLeft = event.capacity - event.registered;
+      const bookmarkIcon = isBookmarked ? icons.bookmarkFilled : icons.bookmarkOutline;
 
       return `
         <li>
@@ -91,7 +92,7 @@ function renderEvents() {
                 data-id="${event.id}" 
                 aria-pressed="${isBookmarked}" 
                 aria-label="${isBookmarked ? 'Remove ' + event.title + ' from my schedule' : 'Save ' + event.title + ' to my schedule'}">
-                <span aria-hidden="true">${isBookmarked ? '★' : '☆'}</span>
+                ${bookmarkIcon}
               </button>
             </div>
             
@@ -99,15 +100,19 @@ function renderEvents() {
             
             <div class="event-meta">
               <span class="meta-item">
-                <span aria-hidden="true">📅</span>
-                <time datetime="${event.date}">${formatDate(event.date)}</time> • ${event.time}
+                ${icons.calendar}
+                <time datetime="${event.date}">${formatDate(event.date)}</time>
               </span>
               <span class="meta-item">
-                <span aria-hidden="true">📍</span>
+                ${icons.clock}
+                <span>${event.time}</span>
+              </span>
+              <span class="meta-item">
+                ${icons.mapPin}
                 <span>${escapeHTML(event.location)}</span>
               </span>
               <span class="meta-item">
-                <span aria-hidden="true">👥</span>
+                ${icons.users}
                 <span>${escapeHTML(event.organizer)}</span>
               </span>
             </div>
@@ -120,7 +125,8 @@ function renderEvents() {
 
             <div class="card-actions">
               <span class="capacity-indicator">
-                ${spotsLeft > 0 ? `${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} remaining` : 'Full'}
+                <span class="pulse-dot" aria-hidden="true"></span>
+                <span>${spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full'}</span>
               </span>
               <button 
                 type="button" 
@@ -128,7 +134,8 @@ function renderEvents() {
                 data-action="view-detail" 
                 data-id="${event.id}"
                 aria-haspopup="dialog">
-                View Details
+                <span>Details</span>
+                ${icons.arrowRight}
               </button>
             </div>
           </article>
@@ -146,7 +153,7 @@ function escapeHTML(str) {
 }
 
 function formatDate(isoDate) {
-  const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+  const options = { weekday: 'short', month: 'short', day: 'numeric' };
   const d = new Date(isoDate + 'T00:00:00');
   return d.toLocaleDateString(undefined, options);
 }
@@ -177,7 +184,9 @@ function toggleBookmark(eventId) {
 function syncModalBookmarkButton(eventId) {
   const isBookmarked = state.savedEventIds.has(eventId);
   elements.modalBookmarkBtn.setAttribute('aria-pressed', isBookmarked);
-  elements.modalBookmarkBtn.textContent = isBookmarked ? '★ Saved to Schedule' : '☆ Save to Schedule';
+  const icon = isBookmarked ? icons.bookmarkFilled : icons.bookmarkOutline;
+  const label = isBookmarked ? 'Saved to Schedule' : 'Save to Schedule';
+  elements.modalBookmarkBtn.innerHTML = `${icon} <span>${label}</span>`;
 }
 
 // Modal Management with Focus Control
@@ -232,7 +241,7 @@ function closeEventModal() {
 
 // Event Listeners Setup
 function initEventListeners() {
-  // Real-time Search input with debounce feel
+  // Real-time Search input
   elements.searchInput.addEventListener('input', e => {
     state.searchQuery = e.target.value;
     renderEvents();
@@ -263,7 +272,7 @@ function initEventListeners() {
     elements.searchInput.focus();
   });
 
-  // Event Delegation for Grid (Bookmarks & Detail button)
+  // Event Delegation for Grid
   elements.eventsGrid.addEventListener('click', e => {
     const bookmarkBtn = e.target.closest('.bookmark-toggle');
     if (bookmarkBtn) {
