@@ -8,10 +8,11 @@ const state = {
   selectedCategory: 'All',
   savedEventIds: new Set(JSON.parse(localStorage.getItem('eventpulse_saved') || '[]')),
   activeEventModalId: null,
+  activeEmailReminderEventId: null,
   isDrawerOpen: false,
 };
 
-// Save to localStorage helper
+// Persist saved IDs in localStorage
 function persistSaved() {
   localStorage.setItem('eventpulse_saved', JSON.stringify([...state.savedEventIds]));
 }
@@ -33,7 +34,7 @@ const elements = {
   drawerBody: document.getElementById('drawer-body'),
   drawerCount: document.getElementById('drawer-count'),
   
-  // Modal elements
+  // Event Detail Modal elements
   modalBackdrop: document.getElementById('event-modal-backdrop'),
   modalCloseBtn: document.getElementById('modal-close-btn'),
   modalDismissBtn: document.getElementById('modal-dismiss-btn'),
@@ -48,6 +49,16 @@ const elements = {
   modalTags: document.getElementById('modal-tags'),
   modalBookmarkBtn: document.getElementById('modal-bookmark-btn'),
   modalRemindBtn: document.getElementById('modal-remind-btn'),
+  
+  // Email Reminder Modal elements
+  emailModalBackdrop: document.getElementById('email-modal-backdrop'),
+  emailModalCloseBtn: document.getElementById('email-modal-close-btn'),
+  emailModalDismissBtn: document.getElementById('email-modal-dismiss-btn'),
+  emailForm: document.getElementById('email-reminder-form'),
+  emailInput: document.getElementById('reminder-email-input'),
+  emailModalTitle: document.getElementById('email-modal-title'),
+  emailPreviewEventTitle: document.getElementById('email-preview-event-title'),
+  emailPreviewMeta: document.getElementById('email-preview-meta'),
   
   // Accessibility & Toast
   announcer: document.getElementById('sr-announcer'),
@@ -189,9 +200,11 @@ function renderScheduleDrawer() {
   if (savedEvents.length === 0) {
     elements.drawerBody.innerHTML = `
       <div class="drawer-empty">
-        <div style="font-size: 2rem; margin-bottom: 0.5rem;" aria-hidden="true">🔖</div>
-        <h4 style="font-weight: 700; margin-bottom: 0.25rem;">No saved events yet</h4>
-        <p style="font-size: 0.875rem;">Click the bookmark icon on any event card to add it to your schedule!</p>
+        <div class="drawer-empty-icon" aria-hidden="true">
+          ${icons.bookmarkOutline}
+        </div>
+        <h4 style="font-weight: 800; font-size: 1.15rem; margin-bottom: 0.35rem;">No saved events yet</h4>
+        <p style="font-size: 0.875rem; color: var(--color-text-muted); line-height: 1.5;">Click the bookmark icon on any campus event card to add it to your personal schedule.</p>
       </div>
     `;
     return;
@@ -202,24 +215,34 @@ function renderScheduleDrawer() {
       ${savedEvents
         .map(
           ev => `
-        <li class="drawer-item">
-          <div class="drawer-item-header">
+        <li class="drawer-card">
+          <div class="drawer-card-top">
             <span class="category-tag" data-cat="${ev.category}">${ev.category}</span>
-            <button type="button" class="drawer-item-remove" data-remove-id="${ev.id}" aria-label="Remove ${ev.title}">
-              ${icons.close}
+            <button type="button" class="btn-remove-drawer" data-remove-id="${ev.id}" title="Remove from schedule" aria-label="Remove ${ev.title}">
+              ${icons.trash}
             </button>
           </div>
-          <h4 class="drawer-item-title">${escapeHTML(ev.title)}</h4>
-          <div class="drawer-item-meta">
-            <span>📅 ${formatDate(ev.date)} • ${ev.time}</span>
-            <span>📍 ${escapeHTML(ev.location)}</span>
+          
+          <h4 class="drawer-card-title">${escapeHTML(ev.title)}</h4>
+          
+          <div class="drawer-card-meta">
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+              ${icons.calendar}
+              <span>${formatDate(ev.date)} • ${ev.time}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+              ${icons.mapPin}
+              <span>${escapeHTML(ev.location)}</span>
+            </div>
           </div>
-          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-            <button type="button" class="btn-detail" data-action="view-detail" data-id="${ev.id}" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
-              View Details
+
+          <div class="drawer-card-actions">
+            <button type="button" class="btn-action-primary" data-action="view-detail" data-id="${ev.id}">
+              <span>View Details</span>
             </button>
-            <button type="button" class="btn-schedule" data-calendar-id="${ev.id}" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
-              🗓️ Add Reminder
+            <button type="button" class="btn-action-email" data-email-reminder-id="${ev.id}">
+              ${icons.mail}
+              <span>Email Reminder</span>
             </button>
           </div>
         </li>
@@ -274,38 +297,6 @@ function syncModalBookmarkButton(eventId) {
   elements.modalBookmarkBtn.innerHTML = `${icon} <span>${label}</span>`;
 }
 
-// Add Calendar / Reminder Export Helper (.ics file generation)
-function downloadCalendarReminder(event) {
-  // Format for iCalendar (YYYYMMDDTHHmmSS)
-  const cleanDate = event.date.replace(/-/g, '');
-  const icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//EventPulse//Campus Event Finder//EN',
-    'BEGIN:VEVENT',
-    `SUMMARY:${event.title}`,
-    `DESCRIPTION:${event.description}\\nOrganizer: ${event.organizer}`,
-    `LOCATION:${event.location}`,
-    `DTSTART:${cleanDate}T090000Z`,
-    `DTEND:${cleanDate}T120000Z`,
-    'STATUS:CONFIRMED',
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
-
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', `${event.id}-reminder.ics`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-
-  showToast(`Reminder downloaded! Open to add to Google/Apple Calendar.`);
-}
-
 // Drawer Open/Close
 function openScheduleDrawer() {
   renderScheduleDrawer();
@@ -320,12 +311,75 @@ function openScheduleDrawer() {
 function closeScheduleDrawer() {
   elements.drawerBackdrop.classList.remove('is-open');
   elements.drawerBackdrop.setAttribute('aria-hidden', 'true');
-  if (!state.activeEventModalId) {
+  if (!state.activeEventModalId && !state.activeEmailReminderEventId) {
     document.body.style.overflow = '';
   }
   state.isDrawerOpen = false;
   elements.headerScheduleBtn.focus();
   announce('Closed My Schedule drawer');
+}
+
+// Email Reminder Modal
+function openEmailReminderModal(eventId) {
+  const event = state.events.find(e => e.id === eventId);
+  if (!event) return;
+
+  state.activeEmailReminderEventId = eventId;
+  elements.emailPreviewEventTitle.textContent = event.title;
+  elements.emailPreviewMeta.textContent = `${formatDate(event.date)} at ${event.time} • ${event.location}`;
+
+  // Pre-fill user email if previously entered
+  const rememberedEmail = localStorage.getItem('eventpulse_user_email') || '';
+  elements.emailInput.value = rememberedEmail;
+
+  elements.emailModalBackdrop.classList.add('is-open');
+  elements.emailModalBackdrop.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  elements.emailInput.focus();
+  announce(`Open email reminder dialog for ${event.title}`);
+}
+
+function closeEmailReminderModal() {
+  elements.emailModalBackdrop.classList.remove('is-open');
+  elements.emailModalBackdrop.setAttribute('aria-hidden', 'true');
+  state.activeEmailReminderEventId = null;
+
+  if (!state.isDrawerOpen && !state.activeEventModalId) {
+    document.body.style.overflow = '';
+  }
+  announce('Closed email reminder dialog');
+}
+
+// Handle Email Reminder Submission
+function handleEmailReminderSubmit(e) {
+  e.preventDefault();
+  const email = elements.emailInput.value.trim();
+  if (!email || !state.activeEmailReminderEventId) return;
+
+  const event = state.events.find(ev => ev.id === state.activeEmailReminderEventId);
+  if (!event) return;
+
+  // Remember email for ease of use
+  localStorage.setItem('eventpulse_user_email', email);
+
+  // Generate mailto link for direct real email client dispatch with pre-filled reminder
+  const subject = encodeURIComponent(`📅 Reminder: ${event.title}`);
+  const body = encodeURIComponent(
+    `Hi,\n\nHere is your campus event reminder for:\n` +
+    `📌 Event: ${event.title}\n` +
+    `🗓 Date & Time: ${formatDate(event.date)} at ${event.time}\n` +
+    `📍 Location: ${event.location}\n` +
+    `👥 Organizer: ${event.organizer}\n\n` +
+    `About: ${event.description}\n\n` +
+    `— EventPulse Campus Tech Event Finder`
+  );
+
+  // Open default user email client (Gmail/Outlook/Apple Mail)
+  window.location.href = `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`;
+
+  closeEmailReminderModal();
+  showToast(`Reminder created for ${email}!`, icons.check);
 }
 
 // Modal Management with Focus Control
@@ -367,7 +421,7 @@ function closeEventModal() {
 
   elements.modalBackdrop.classList.remove('is-open');
   elements.modalBackdrop.setAttribute('aria-hidden', 'true');
-  if (!state.isDrawerOpen) {
+  if (!state.isDrawerOpen && !state.activeEmailReminderEventId) {
     document.body.style.overflow = '';
   }
   state.activeEventModalId = null;
@@ -420,7 +474,7 @@ function initEventListeners() {
     }
   });
 
-  // Drawer interactions (Remove and Calendar reminder)
+  // Drawer interactions (Remove and Email reminder)
   elements.drawerBody.addEventListener('click', e => {
     const removeBtn = e.target.closest('[data-remove-id]');
     if (removeBtn) {
@@ -428,10 +482,9 @@ function initEventListeners() {
       return;
     }
 
-    const calBtn = e.target.closest('[data-calendar-id]');
-    if (calBtn) {
-      const event = state.events.find(ev => ev.id === calBtn.dataset.calendarId);
-      if (event) downloadCalendarReminder(event);
+    const emailBtn = e.target.closest('[data-email-reminder-id]');
+    if (emailBtn) {
+      openEmailReminderModal(emailBtn.dataset.emailReminderId);
       return;
     }
 
@@ -441,7 +494,17 @@ function initEventListeners() {
     }
   });
 
-  // Event Delegation for Grid
+  // Email modal actions
+  elements.emailForm.addEventListener('submit', handleEmailReminderSubmit);
+  elements.emailModalCloseBtn.addEventListener('click', closeEmailReminderModal);
+  elements.emailModalDismissBtn.addEventListener('click', closeEmailReminderModal);
+  elements.emailModalBackdrop.addEventListener('click', e => {
+    if (e.target === elements.emailModalBackdrop) {
+      closeEmailReminderModal();
+    }
+  });
+
+  // Event Grid Delegation
   elements.eventsGrid.addEventListener('click', e => {
     const bookmarkBtn = e.target.closest('.bookmark-toggle');
     if (bookmarkBtn) {
@@ -467,8 +530,7 @@ function initEventListeners() {
   });
   elements.modalRemindBtn.addEventListener('click', () => {
     if (state.activeEventModalId) {
-      const ev = state.events.find(e => e.id === state.activeEventModalId);
-      if (ev) downloadCalendarReminder(ev);
+      openEmailReminderModal(state.activeEventModalId);
     }
   });
 
@@ -482,7 +544,9 @@ function initEventListeners() {
   // Keyboard trap & Escape dismissal
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
-      if (state.activeEventModalId) {
+      if (state.activeEmailReminderEventId) {
+        closeEmailReminderModal();
+      } else if (state.activeEventModalId) {
         closeEventModal();
       } else if (state.isDrawerOpen) {
         closeScheduleDrawer();
