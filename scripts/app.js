@@ -6,9 +6,15 @@ const state = {
   events: [...initialEvents],
   searchQuery: '',
   selectedCategory: 'All',
-  savedEventIds: new Set(),
+  savedEventIds: new Set(JSON.parse(localStorage.getItem('eventpulse_saved') || '[]')),
   activeEventModalId: null,
+  isDrawerOpen: false,
 };
+
+// Save to localStorage helper
+function persistSaved() {
+  localStorage.setItem('eventpulse_saved', JSON.stringify([...state.savedEventIds]));
+}
 
 // DOM Element References
 const elements = {
@@ -19,6 +25,15 @@ const elements = {
   resetFiltersBtn: document.getElementById('reset-filters-btn'),
   resultsCount: document.getElementById('results-count'),
   scheduleCount: document.getElementById('schedule-count'),
+  headerScheduleBtn: document.getElementById('header-schedule-btn'),
+  
+  // Drawer elements
+  drawerBackdrop: document.getElementById('schedule-drawer-backdrop'),
+  drawerCloseBtn: document.getElementById('drawer-close-btn'),
+  drawerBody: document.getElementById('drawer-body'),
+  drawerCount: document.getElementById('drawer-count'),
+  
+  // Modal elements
   modalBackdrop: document.getElementById('event-modal-backdrop'),
   modalCloseBtn: document.getElementById('modal-close-btn'),
   modalDismissBtn: document.getElementById('modal-dismiss-btn'),
@@ -32,14 +47,34 @@ const elements = {
   modalPrerequisites: document.getElementById('modal-prerequisites'),
   modalTags: document.getElementById('modal-tags'),
   modalBookmarkBtn: document.getElementById('modal-bookmark-btn'),
+  modalRemindBtn: document.getElementById('modal-remind-btn'),
+  
+  // Accessibility & Toast
   announcer: document.getElementById('sr-announcer'),
+  toastContainer: document.getElementById('toast-container'),
 };
 
-// Accessibility: Live region announcer for screen readers
+// Accessibility announcer
 function announce(message) {
   if (elements.announcer) {
     elements.announcer.textContent = message;
   }
+}
+
+// Toast Notification
+function showToast(message, icon = icons.calendar) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `${icon} <span>${escapeHTML(message)}</span>`;
+  elements.toastContainer.appendChild(toast);
+  announce(message);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    toast.style.transition = 'all 200ms ease';
+    setTimeout(() => toast.remove(), 250);
+  }, 3500);
 }
 
 // Filter Logic
@@ -91,6 +126,7 @@ function renderEvents() {
                 class="bookmark-toggle" 
                 data-id="${event.id}" 
                 aria-pressed="${isBookmarked}" 
+                title="${isBookmarked ? 'Remove from schedule' : 'Save to schedule'}"
                 aria-label="${isBookmarked ? 'Remove ' + event.title + ' from my schedule' : 'Save ' + event.title + ' to my schedule'}">
                 ${bookmarkIcon}
               </button>
@@ -145,6 +181,55 @@ function renderEvents() {
     .join('');
 }
 
+// Render Saved Schedule Drawer
+function renderScheduleDrawer() {
+  const savedEvents = state.events.filter(e => state.savedEventIds.has(e.id));
+  elements.drawerCount.textContent = `(${savedEvents.length})`;
+
+  if (savedEvents.length === 0) {
+    elements.drawerBody.innerHTML = `
+      <div class="drawer-empty">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;" aria-hidden="true">🔖</div>
+        <h4 style="font-weight: 700; margin-bottom: 0.25rem;">No saved events yet</h4>
+        <p style="font-size: 0.875rem;">Click the bookmark icon on any event card to add it to your schedule!</p>
+      </div>
+    `;
+    return;
+  }
+
+  elements.drawerBody.innerHTML = `
+    <ul class="drawer-list" aria-label="Saved events list">
+      ${savedEvents
+        .map(
+          ev => `
+        <li class="drawer-item">
+          <div class="drawer-item-header">
+            <span class="category-tag" data-cat="${ev.category}">${ev.category}</span>
+            <button type="button" class="drawer-item-remove" data-remove-id="${ev.id}" aria-label="Remove ${ev.title}">
+              ${icons.close}
+            </button>
+          </div>
+          <h4 class="drawer-item-title">${escapeHTML(ev.title)}</h4>
+          <div class="drawer-item-meta">
+            <span>📅 ${formatDate(ev.date)} • ${ev.time}</span>
+            <span>📍 ${escapeHTML(ev.location)}</span>
+          </div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+            <button type="button" class="btn-detail" data-action="view-detail" data-id="${ev.id}" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+              View Details
+            </button>
+            <button type="button" class="btn-schedule" data-calendar-id="${ev.id}" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+              🗓️ Add Reminder
+            </button>
+          </div>
+        </li>
+      `
+        )
+        .join('')}
+    </ul>
+  `;
+}
+
 // Helpers
 function escapeHTML(str) {
   const div = document.createElement('div');
@@ -165,17 +250,17 @@ function toggleBookmark(eventId) {
 
   if (state.savedEventIds.has(eventId)) {
     state.savedEventIds.delete(eventId);
-    announce(`Removed ${targetEvent.title} from schedule.`);
+    showToast(`Removed from schedule`, icons.close);
   } else {
     state.savedEventIds.add(eventId);
-    announce(`Saved ${targetEvent.title} to schedule.`);
+    showToast(`Saved to My Schedule!`, icons.bookmarkFilled);
   }
 
-  // Update schedule badge
+  persistSaved();
   elements.scheduleCount.textContent = state.savedEventIds.size;
   renderEvents();
+  renderScheduleDrawer();
 
-  // If modal is open for this event, sync modal button
   if (state.activeEventModalId === eventId) {
     syncModalBookmarkButton(eventId);
   }
@@ -187,6 +272,60 @@ function syncModalBookmarkButton(eventId) {
   const icon = isBookmarked ? icons.bookmarkFilled : icons.bookmarkOutline;
   const label = isBookmarked ? 'Saved to Schedule' : 'Save to Schedule';
   elements.modalBookmarkBtn.innerHTML = `${icon} <span>${label}</span>`;
+}
+
+// Add Calendar / Reminder Export Helper (.ics file generation)
+function downloadCalendarReminder(event) {
+  // Format for iCalendar (YYYYMMDDTHHmmSS)
+  const cleanDate = event.date.replace(/-/g, '');
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//EventPulse//Campus Event Finder//EN',
+    'BEGIN:VEVENT',
+    `SUMMARY:${event.title}`,
+    `DESCRIPTION:${event.description}\\nOrganizer: ${event.organizer}`,
+    `LOCATION:${event.location}`,
+    `DTSTART:${cleanDate}T090000Z`,
+    `DTEND:${cleanDate}T120000Z`,
+    'STATUS:CONFIRMED',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `${event.id}-reminder.ics`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  showToast(`Reminder downloaded! Open to add to Google/Apple Calendar.`);
+}
+
+// Drawer Open/Close
+function openScheduleDrawer() {
+  renderScheduleDrawer();
+  elements.drawerBackdrop.classList.add('is-open');
+  elements.drawerBackdrop.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  elements.drawerCloseBtn.focus();
+  state.isDrawerOpen = true;
+  announce('Opened My Schedule drawer');
+}
+
+function closeScheduleDrawer() {
+  elements.drawerBackdrop.classList.remove('is-open');
+  elements.drawerBackdrop.setAttribute('aria-hidden', 'true');
+  if (!state.activeEventModalId) {
+    document.body.style.overflow = '';
+  }
+  state.isDrawerOpen = false;
+  elements.headerScheduleBtn.focus();
+  announce('Closed My Schedule drawer');
 }
 
 // Modal Management with Focus Control
@@ -219,7 +358,6 @@ function openEventModal(eventId) {
   elements.modalBackdrop.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
-  // Move focus into the modal close button for keyboard users
   elements.modalCloseBtn.focus();
   announce(`Opened details for ${event.title}`);
 }
@@ -229,10 +367,11 @@ function closeEventModal() {
 
   elements.modalBackdrop.classList.remove('is-open');
   elements.modalBackdrop.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
+  if (!state.isDrawerOpen) {
+    document.body.style.overflow = '';
+  }
   state.activeEventModalId = null;
 
-  // Restore previous keyboard focus
   if (lastFocusedElement) {
     lastFocusedElement.focus();
   }
@@ -258,7 +397,7 @@ function initEventListeners() {
     });
   });
 
-  // Reset filters button in empty state
+  // Reset filters button
   elements.resetFiltersBtn.addEventListener('click', () => {
     state.searchQuery = '';
     state.selectedCategory = 'All';
@@ -270,6 +409,36 @@ function initEventListeners() {
 
     renderEvents();
     elements.searchInput.focus();
+  });
+
+  // Header "My Schedule" click opens Drawer!
+  elements.headerScheduleBtn.addEventListener('click', openScheduleDrawer);
+  elements.drawerCloseBtn.addEventListener('click', closeScheduleDrawer);
+  elements.drawerBackdrop.addEventListener('click', e => {
+    if (e.target === elements.drawerBackdrop) {
+      closeScheduleDrawer();
+    }
+  });
+
+  // Drawer interactions (Remove and Calendar reminder)
+  elements.drawerBody.addEventListener('click', e => {
+    const removeBtn = e.target.closest('[data-remove-id]');
+    if (removeBtn) {
+      toggleBookmark(removeBtn.dataset.removeId);
+      return;
+    }
+
+    const calBtn = e.target.closest('[data-calendar-id]');
+    if (calBtn) {
+      const event = state.events.find(ev => ev.id === calBtn.dataset.calendarId);
+      if (event) downloadCalendarReminder(event);
+      return;
+    }
+
+    const detailBtn = e.target.closest('[data-action="view-detail"]');
+    if (detailBtn) {
+      openEventModal(detailBtn.dataset.id);
+    }
   });
 
   // Event Delegation for Grid
@@ -296,8 +465,14 @@ function initEventListeners() {
       toggleBookmark(state.activeEventModalId);
     }
   });
+  elements.modalRemindBtn.addEventListener('click', () => {
+    if (state.activeEventModalId) {
+      const ev = state.events.find(e => e.id === state.activeEventModalId);
+      if (ev) downloadCalendarReminder(ev);
+    }
+  });
 
-  // Backdrop click to dismiss
+  // Backdrop click to dismiss modal
   elements.modalBackdrop.addEventListener('click', e => {
     if (e.target === elements.modalBackdrop) {
       closeEventModal();
@@ -306,8 +481,12 @@ function initEventListeners() {
 
   // Keyboard trap & Escape dismissal
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && state.activeEventModalId) {
-      closeEventModal();
+    if (e.key === 'Escape') {
+      if (state.activeEventModalId) {
+        closeEventModal();
+      } else if (state.isDrawerOpen) {
+        closeScheduleDrawer();
+      }
     }
   });
 }
@@ -315,5 +494,6 @@ function initEventListeners() {
 // App Initialization
 document.addEventListener('DOMContentLoaded', () => {
   initEventListeners();
+  elements.scheduleCount.textContent = state.savedEventIds.size;
   renderEvents();
 });
