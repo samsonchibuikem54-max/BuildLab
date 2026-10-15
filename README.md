@@ -1,4 +1,4 @@
-﻿# EventPulse 🎓⚡
+# EventPulse 🎓⚡
 
 **A Campus and Local Technology Event Finder**
 
@@ -256,7 +256,7 @@ After adding the screenshots, you can display them here:
 ## 12. Project Links
 
 - **GitHub Repository:** [https://github.com/samsonchibuikem54-max/BuildLab](https://github.com/samsonchibuikem54-max/BuildLab)
-- **Live Application:** [https://samsonchibuikem54-max.github.io/BuildLab/](https://samsonchibuikem54-max.github.io/BuildLab/)
+- **Live Application (Vercel):** [https://eventpulse-lime.vercel.app/](https://eventpulse-lime.vercel.app/)
 - **Idea One-Pager:** `docs/idea-one-pager.md`
 - **Work Plan:** `docs/work-plan.md`
 
