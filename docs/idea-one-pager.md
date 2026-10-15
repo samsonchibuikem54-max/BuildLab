@@ -1,43 +1,46 @@
-﻿# EventPulse — Campus & Local Tech Event Finder
+﻿# EventPulse — Idea One-Pager
 
-**Track:** Frontend Development  
-**Stack:** Plain Vanilla HTML5, Modern CSS3, JavaScript (ES6+)  
-**Target User:** University students, boot camp attendees, and junior tech professionals looking for local or campus-based tech events, workshops, and hackathons.  
+Track: Frontend Development
 
-**Problem:**  
-Campus tech events and local developer meetups are scattered across fragmented channels (WhatsApp/Telegram groups, departmental flyers, Discord servers, and social media). Students frequently discover events after registration has closed or struggle to organize and keep track of relevant networking opportunities.
+Technology Stack: HTML5, CSS3, Vanilla JavaScript (ES Modules), and LocalStorage.
 
-**Core Flow:**  
-Browse Event Directory -> Search & Filter by category/date -> View Event Details (modal/drawer) -> Save/Bookmark to "My Schedule" (stored locally).
+### 1. Project Overview
+EventPulse is a web application designed to help students discover and keep track of campus and local technology events. It provides a simple interface for finding events, viewing their details, and bookmarking events of interest.
 
-**Data Source:**  
-Curated campus tech events dataset (initially in-memory mock data for Week 1, migrating to async JSON fetch with loading/empty/error states in Week 2).
+### 2. Target Users
+The primary users are students and young people who want to discover technology events, workshops, seminars, conferences, and other learning opportunities.
 
----
+### 3. Problem Statement
+Students may find it difficult to discover relevant technology events and keep track of the ones they want to attend. EventPulse aims to make this process easier by bringing event information into one place and providing search, category filtering, and bookmarking features.
 
-### Scope
-#### In Scope
-- Mobile-first, responsive interface (320px to 4K desktop).
-- Semantic HTML5 landmark structure (`header`, `nav`, `main`, `section`, `article`, `footer`).
-- WCAG AA accessibility compliance: minimum 4.5:1 text contrast, distinct `:focus-visible` outlines, screen-reader labels (`aria-label`, `aria-live`, `aria-expanded`).
-- Real-time search query matching across event titles, organizers, and tags.
-- Multi-category filtering (All, Workshop, Hackathon, Meetup, Career Fair).
-- Interactive Event Detail drawer/modal with keyboard trap (`Escape` to dismiss).
-- Save to "My Schedule" with persistent bookmark counter and quick-toggle.
-- Empty states and active filter resets.
+### 4. Core User Flow
+**Browse Events → Search or Filter Events → View Event Details → Bookmark an Event → Revisit Saved Events**
 
-#### Out of Scope
-- Ticket purchases or payment gateway integrations (avoids complexity).
-- User authentication / backend database accounts (uses browser client storage).
-- Real-time attendee chat or social messaging.
-- Host dashboard for event ticket scanning.
+Users can browse the available events, find relevant ones using search and category filters, view event details in a modal, and bookmark events for later reference.
 
----
+### 5. Data Source
+The current version uses sample event data stored locally in the application. Bookmarks are saved in the browser using LocalStorage. The next development stage will focus on integrating asynchronous JSON data loading and handling loading, empty, and error states.
 
-### Top 3 Risks & Mitigation
-1. **Risk:** Keyboard accessibility and focus trap issues in custom modal dialogs.  
-   *Mitigation:* Implement standard native `<dialog>` element or strict JavaScript focus-trapping with keyboard listeners (`Tab`, `Shift+Tab`, `Escape`).
-2. **Risk:** Responsive layout breakage on small mobile devices (~320px).  
-   *Mitigation:* Strictly build mobile-first with CSS flexbox and fluid grid (`minmax()`), testing continuously with mobile viewport constraints.
-3. **Risk:** State synchronization between the event list and saved items without a framework.  
-   *Mitigation:* Use a centralized vanilla state management pattern with event-driven custom events or state subscriber functions.
+### 6. Project Scope
+
+**In Scope**
+- A responsive event-listing interface for mobile and desktop screens.
+- Search events by title, organizer, location, or topic.
+- Filter events by category.
+- Display event details in a modal.
+- Bookmark and revisit saved events.
+- Provide basic keyboard accessibility and clear user feedback.
+
+Out of Scope
+- Online ticket purchases or payment processing.
+- Real-time event registration and attendance tracking.
+- User accounts and server-side authentication.
+- A complete event-management system for organizers.
+
+### 7. Top Three Risks
+1. **Responsive design:** Some layouts or controls may not display correctly on smaller screens. I will test the application at different viewport widths and correct any layout issues.
+2. **Accessibility:** Keyboard navigation, focus management, and colour contrast may need improvement. I will test these features and make the necessary adjustments.
+3. **Data reliability:** Local sample data does not provide automatically updated event information. I will work on asynchronous data integration and appropriate loading, empty, and error states in the next development stage.
+
+### 8. Expected Outcome
+The expected outcome is a responsive, accessible, and interactive event-discovery application that helps users find relevant events and save the ones they are interested in. The project will be developed incrementally over the three-week BuildLab programme.
