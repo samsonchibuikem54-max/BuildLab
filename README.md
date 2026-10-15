@@ -1,89 +1,275 @@
-# EventPulse 🎓⚡
-> Discover, filter, and track campus & local tech events, workshops, and hackathons. Built with pure Vanilla HTML5, CSS3, and JavaScript for BuildLab Stage 1.
+﻿# EventPulse 🎓⚡
 
-## 📌 Idea One-Pager
+**A Campus and Local Technology Event Finder**
 
-- **Track:** Frontend Development
-- **Stack:** Semantic HTML5, Modern CSS3 (Grid & Flexbox), Vanilla JavaScript (ES6 Modules)
-- **Target User:** University students, bootcamp coders, and early-career software developers looking for campus tech meetups, hackathons, and workshops.
-- **Problem:** Campus tech events are posted across fragmented social channels, flyers, and group chats. Students miss out on registration deadlines, speaker workshops, and vital networking opportunities.
-- **Core Flow:**
-  `Browse Event List` ➔ `Search & Category Filter` ➔ `View Event Details` ➔ `Save to My Schedule (LocalStorage)`
-- **Data Source:** Curated Campus Tech Events dataset (In-memory mock for Week 1, async JSON fetch in Week 2).
+EventPulse is a responsive web application that helps students and young technology enthusiasts discover events, search for relevant opportunities, view event details, and bookmark events for later reference.
 
-### Scope
-- **In Scope:**
-  - Fully responsive, mobile-first design (320px to 4K).
-  - Semantic HTML5 landmarks (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<button>`).
-  - WCAG AA accessibility: 4.5:1+ contrast ratio, explicit focus rings, keyboard navigability, screen-reader labels.
-  - Client-side search and category filtering with empty state handling.
-  - Interactive Event Detail modal with focus trapping and `Escape` key support.
-  - Save to Schedule toggle with live counter badge.
-- **Out of Scope:**
-  - Backend user authentication (kept client-side for rapid zero-dependency reliability).
-  - Ticket transactions or payments.
-  - Real-time social chat.
+The project is being developed as part of **BuildLab Stage 1 — Frontend Development**.
+
+## 1. Project Overview
+
+### Problem Statement
+
+Campus technology events, workshops, hackathons, and developer meetups are often announced through different social media platforms, group chats, and flyers. As a result, students may find it difficult to discover relevant opportunities and keep track of events they are interested in.
+
+EventPulse aims to make event discovery and organization easier through a single, interactive interface.
+
+### Target Users
+
+- University and polytechnic students.
+- Coding bootcamp participants.
+- Junior software developers.
+- People interested in technology workshops, hackathons, and meetups.
+
+### Core User Flow
+
+**Browse Events → Search or Filter → View Event Details → Bookmark Events → Revisit Saved Events**
+
+## 2. Technology Stack
+
+The current version uses standard browser technologies without a build tool.
+
+| Technology            | Purpose                                                                 |
+| --------------------- | ----------------------------------------------------------------------- |
+| HTML5                 | Defines the structure and content of the application.                   |
+| CSS3                  | Controls styling, responsive layouts, and visual presentation.          |
+| JavaScript ES Modules | Handles interactions and organizes the application logic.               |
+| LocalStorage          | Stores saved event IDs and the remembered email address in the browser. |
+| CSS Grid and Flexbox  | Help arrange content across different screen sizes.                     |
+
+### Why I Chose This Stack
+
+I chose HTML5, CSS3, and vanilla JavaScript to build a lightweight application without requiring a frontend framework or bundler.
+
+This approach allows me to practise semantic HTML, responsive design, DOM manipulation, event handling, JavaScript modules, and accessibility fundamentals.
+
+## 3. Main Features
+
+### Event Listing
+
+Displays sample technology events with information such as event titles, categories, dates, locations, and organizers.
+
+### Search
+
+Allows users to search for events using supported event information, including titles, organizers, locations, and tags.
+
+### Category Filtering
+
+Allows users to narrow the event list by category.
+
+### Event Details Modal
+
+Provides additional information about a selected event in a modal.
+
+The modal supports dismissal through its available close controls, backdrop clicks, and the Escape key. Keyboard focus trapping and focus restoration ensure that keyboard navigation remains contained and returns to the triggering button on close.
+
+### Bookmarks and My Schedule
+
+Users can bookmark events and access their saved events via an interactive slide-out drawer.
+
+Saved event IDs are stored in LocalStorage so that bookmarks persist across page refreshes in the same browser.
+
+### Email Reminder Interface
+
+Users can open an email reminder form for an event with built-in email validation.
+
+The current implementation prepares an email using the user's default email application through a `mailto:` link. It does not send emails directly from a server.
+
+### Empty Results Feedback
+
+The application provides feedback when a search or category filter produces no matching events and offers a way to reset the filters.
+
+## 4. Project Structure
+
+```text
+EventPulse/
+│
+├── index.html
+├── README.md
+│
+├── docs/
+│   ├── idea-one-pager.md
+│   └── work-plan.md
+│
+├── scripts/
+│   ├── app.js
+│   ├── data.js
+│   └── icons.js
+│
+└── styles/
+    ├── main.css
+    └── variables.css
+```
+
+### File Responsibilities
+
+- `index.html`: Contains the main HTML structure.
+- `styles/main.css`: Contains the main layout, component styles, and responsive styling.
+- `styles/variables.css`: Defines reusable CSS variables, including colours and spacing.
+- `scripts/app.js`: Handles application state, user interactions, search, filtering, focus trapping, and modal behaviours.
+- `scripts/data.js`: Contains the initial sample event data.
+- `scripts/icons.js`: Provides reusable SVG icons.
+- `docs/idea-one-pager.md`: Describes the project idea, target users, problem, scope, and risks.
+- `docs/work-plan.md`: Outlines the development plan for the three-week programme.
+
+## 5. How to Run Locally
+
+EventPulse uses JavaScript ES Modules. For reliable local testing, run the application through a local HTTP server.
+
+### Requirements
+
+- A modern web browser.
+- Python installed on your computer, or another local static web server.
+
+No frontend build step is currently required.
+
+### Steps
+
+**Step 1:** Download or clone the project repository.
+
+```bash
+git clone https://github.com/samsonchibuikem54-max/BuildLab.git
+```
+
+**Step 2:** Open the project folder in your terminal.
+
+```bash
+cd BuildLab
+```
+
+**Step 3:** Start a local server using Python.
+
+```bash
+python -m http.server 8000
+```
+
+If your system uses the `python3` command instead, run:
+
+```bash
+python3 -m http.server 8000
+```
+
+Or using Node.js:
+
+```bash
+npx serve .
+```
+
+**Step 4:** Open this address in your browser:
+
+```text
+http://localhost:8000
+```
+
+If port 8000 is already being used, choose another available port.
+
+## 6. Accessibility and Responsive Design
+
+Accessibility and responsive design are important parts of EventPulse.
+
+The implementation includes the following accessibility features:
+
+- Semantic HTML elements (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<button>`).
+- A skip link for navigating to the main content.
+- Explicit form control labels and live error feedback.
+- Visible keyboard focus styling (`:focus-visible`).
+- An ARIA live region for dynamic announcements.
+- Keyboard focus trapping in dialogs and drawers with Escape key dismissal.
+- Focus restoration returning focus to trigger elements upon modal close.
+
+The layout uses CSS Grid, Flexbox, and mobile-first media queries to support different screen sizes from 320px to 4K displays.
+
+## 7. Data and Storage
+
+The current version uses locally defined sample event data.
+
+Bookmarks are stored in the browser using LocalStorage. The email reminder interface also remembers the entered email address in LocalStorage.
+
+This means that the application does not currently require a backend database or user authentication.
+
+The sample event information is not automatically updated from a live events service.
+
+## 8. Current Limitations
+
+The current version has the following limitations:
+
+- Event information is based on sample data.
+- There is no live event API integration yet (planned for Week 2).
+- Bookmarks are stored locally in the browser rather than in a cloud database.
+- The email reminder feature relies on the user's default email application.
+- There is no backend user authentication.
+- Automated unit test suites have not yet been configured (planned for Week 3).
+
+These limitations will guide further development during the BuildLab programme.
+
+## 9. Three-Week Development Plan
+
+| Week   | Focus                | Planned Deliverables                                                                                                |
+| ------ | -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Week 1 | Foundations          | Idea one-pager, work plan, responsive interface, JavaScript interactions, README, and screenshots.                  |
+| Week 2 | Components and Data  | Reusable components or modules, asynchronous JSON data integration, loading and error states, and issue log.        |
+| Week 3 | Quality and Delivery | Multiple views, persistent state, accessibility improvements, automated tests, deployment, and final documentation. |
+
+The implementation will be updated as each stage is completed.
+
+## 10. Top Three Risks
+
+### Risk 1: Accessibility Issues
+
+Custom modals and interactive controls may not behave correctly for keyboard or screen-reader users.
+
+**Mitigation:** Implement strict focus trapping, focus restoration, accessible names, screen-reader announcements, and maintain 4.5:1+ colour contrast.
+
+### Risk 2: Responsive Layout Problems
+
+Some elements may overflow or become difficult to use on small screens.
+
+**Mitigation:** Test the layout at different viewport widths, starting at 320px, and correct any overflow or spacing problems using fluid grid and flexbox.
+
+### Risk 3: Inconsistent Application State
+
+Saved events may not remain consistent between event cards, the detail modal, and the saved-events view.
+
+**Mitigation:** Keep the application state centralized in JavaScript and sync bookmarks with LocalStorage and custom event handlers.
+
+## 11. Screenshots
+
+Add screenshots showing the application at mobile and desktop widths.
+
+Suggested folder structure:
+
+```text
+docs/
+└── screenshots/
+    ├── eventpulse-mobile.png
+    └── eventpulse-desktop.png
+```
+
+After adding the screenshots, you can display them here:
+
+### Mobile View
+![EventPulse Mobile View](docs/screenshots/eventpulse-mobile.png)
+
+### Desktop View
+![EventPulse Desktop View](docs/screenshots/eventpulse-desktop.png)
+
+## 12. Project Links
+
+- **GitHub Repository:** [https://github.com/samsonchibuikem54-max/BuildLab](https://github.com/samsonchibuikem54-max/BuildLab)
+- **Live Application:** [https://samsonchibuikem54-max.github.io/BuildLab/](https://samsonchibuikem54-max.github.io/BuildLab/)
+- **Idea One-Pager:** `docs/idea-one-pager.md`
+- **Work Plan:** `docs/work-plan.md`
+
+## 13. Development Notes
+
+EventPulse is being developed incrementally throughout BuildLab Stage 1.
+
+Changes, feedback, technical decisions, and outstanding issues will be documented as development continues.
+
+AI tools were used to assist with parts of the development process, including semantic structure and accessibility-related implementation. The code and resulting behaviour will be reviewed and tested as the project progresses.
 
 ---
 
-## 📅 3-Week Work Plan
-
-| Week | Focus | Key Deliverables | Git Tag |
-| :--- | :--- | :--- | :--- |
-| **Week 1** | Foundations | Idea One-Pager, Work Plan, Responsive Accessible Screen, Vanilla JS Interactivity, README docs | `week-1` |
-| **Week 2** | Components & Data | Component refactoring, Async JSON data integration, Loading/Empty/Error states, Issue Log | `week-2` |
-| **Week 3** | Quality & Delivery | Multi-view routing (`#/`), State persistence (`localStorage`), Accessibility audit, Automated tests, Live deploy | `week-3` |
-
-### Top 3 Risks & Mitigation
-1. **Modal Accessibility:** Unmanaged focus in custom dialogs can confuse keyboard/screen reader users.  
-   *Mitigation:* Use standard HTML5 `<dialog>` or custom focus-trap handling with `Escape` dismiss.
-2. **Mobile Viewport Overflow:** Small screens (320px) breaking layout.  
-   *Mitigation:* Mobile-first media queries and CSS grid `minmax(0, 1fr)` patterns.
-3. **State Desynchronization:** Keeping bookmark state consistent between list and detail modal.  
-   *Mitigation:* Single source of truth in the JavaScript application state object.
-
----
-
-## 🚀 How to Run Locally
-
-Because this project uses pure modern web standards, no bundlers or Node.js installations are required!
-
-1. Clone or download this repository:
-   ```bash
-   git clone https://github.com/<your-username>/BuildLab.git
-   cd BuildLab
-   ```
-2. Start a local static web server (required for JavaScript ES Module imports):
-   - Using Python (built into most systems):
-     ```bash
-     python -m http.server 8000
-     ```
-   - OR using Node.js:
-     ```bash
-     npx serve .
-     ```
-   - OR using the VS Code "Live Server" extension (Right click `index.html` -> "Open with Live Server").
-3. Visit `http://localhost:8000` (or the port shown in your terminal) in your browser.
-
-> [!NOTE]
-> Modern browsers enforce CORS security policies on native ES Modules (`import`/`export`), which prevents scripts from loading when opening files directly via `file:///`. Running a local static server provides a seamless, standard-compliant experience without needing any build tools.
-
----
-
-## ⚡ Interactive Behaviors (Task 1.2)
-
-1. **Real-time Live Search & Filter**:
-   - As you type in the search box, the event list dynamically updates matching event titles, locations, and tags.
-   - Clicking category pills (e.g., *Workshop*, *Hackathon*, *Meetup*, *Career*) filters events instantly.
-   - If no events match, an accessible empty state with a "Reset Filters" action is displayed.
-2. **Accessible Dialog Modals with Full Keyboard Focus Trap & Restoration**:
-   - Selecting "View Details" opens the event modal, while clicking "Email Reminder" opens the notification modal.
-   - **Focus Trap:** Tabbing wraps within the open dialog/drawer and prevents keyboard focus from escaping into background elements.
-   - **Focus Restoration:** Upon closing (via `Escape`, close button, or backdrop click), keyboard focus automatically returns to the button that triggered it.
-3. **Interactive Schedule Drawer with Persistence**:
-   - Clicking "My Schedule" slides open an accessible drawer listing all saved events.
-   - Saved bookmarks persist in `localStorage` across page reloads.
-   - Users can remove items with immediate visual and screen-reader confirmation.
-4. **Email Reminder Service & Form Validation**:
-   - Users can request a reminder with real-time email format validation and accessible inline error alerts.
-   - Generates pre-formatted calendar invites dispatched via native email clients.
+**Project:** EventPulse  
+**Track:** Frontend Development  
+**Programme:** BuildLab Stage 1
