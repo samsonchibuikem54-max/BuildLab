@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -182,7 +182,9 @@
               class="form-input" 
               placeholder="e.g. yourname@university.edu" 
               required 
-              autocomplete="email">
+              autocomplete="email"
+              aria-describedby="email-error-msg">
+            <span id="email-error-msg" class="form-error-msg" role="alert" hidden></span>
           </div>
         </div>
 

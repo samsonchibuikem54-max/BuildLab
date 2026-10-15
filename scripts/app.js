@@ -30,12 +30,14 @@ const elements = {
   
   // Drawer elements
   drawerBackdrop: document.getElementById('schedule-drawer-backdrop'),
+  drawerPanel: document.querySelector('.drawer-panel'),
   drawerCloseBtn: document.getElementById('drawer-close-btn'),
   drawerBody: document.getElementById('drawer-body'),
   drawerCount: document.getElementById('drawer-count'),
   
   // Event Detail Modal elements
   modalBackdrop: document.getElementById('event-modal-backdrop'),
+  modalCard: document.querySelector('#event-modal-backdrop .modal-content'),
   modalCloseBtn: document.getElementById('modal-close-btn'),
   modalDismissBtn: document.getElementById('modal-dismiss-btn'),
   modalTitle: document.getElementById('modal-title'),
@@ -52,10 +54,12 @@ const elements = {
   
   // Email Reminder Modal elements
   emailModalBackdrop: document.getElementById('email-modal-backdrop'),
+  emailModalCard: document.querySelector('#email-modal-backdrop .modal-content'),
   emailModalCloseBtn: document.getElementById('email-modal-close-btn'),
   emailModalDismissBtn: document.getElementById('email-modal-dismiss-btn'),
   emailForm: document.getElementById('email-reminder-form'),
   emailInput: document.getElementById('reminder-email-input'),
+  emailError: document.getElementById('email-error-msg'),
   emailModalTitle: document.getElementById('email-modal-title'),
   emailPreviewEventTitle: document.getElementById('email-preview-event-title'),
   emailPreviewMeta: document.getElementById('email-preview-meta'),
@@ -65,10 +69,19 @@ const elements = {
   toastContainer: document.getElementById('toast-container'),
 };
 
+// Track which button opened which modal/drawer for focus restoration
+let modalTriggerElement = null;
+let emailModalTriggerElement = null;
+let drawerTriggerElement = null;
+
 // Accessibility announcer
 function announce(message) {
   if (elements.announcer) {
-    elements.announcer.textContent = message;
+    elements.announcer.textContent = '';
+    // small timeout ensures screen readers detect text mutation
+    setTimeout(() => {
+      elements.announcer.textContent = message;
+    }, 50);
   }
 }
 
@@ -86,6 +99,45 @@ function showToast(message, icon = icons.calendar) {
     toast.style.transition = 'all 200ms ease';
     setTimeout(() => toast.remove(), 250);
   }, 3500);
+}
+
+// Universal Focus Trap Helper for Dialogs and Drawers
+function trapFocus(containerElement, event) {
+  if (event.key !== 'Tab') return;
+
+  const focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(', ');
+
+  const focusables = Array.from(containerElement.querySelectorAll(focusableSelectors))
+    .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement);
+
+  if (focusables.length === 0) {
+    event.preventDefault();
+    return;
+  }
+
+  const firstFocusable = focusables[0];
+  const lastFocusable = focusables[focusables.length - 1];
+
+  if (event.shiftKey) {
+    // Shift + Tab
+    if (document.activeElement === firstFocusable || !containerElement.contains(document.activeElement)) {
+      event.preventDefault();
+      lastFocusable.focus();
+    }
+  } else {
+    // Tab
+    if (document.activeElement === lastFocusable || !containerElement.contains(document.activeElement)) {
+      event.preventDefault();
+      firstFocusable.focus();
+    }
+  }
 }
 
 // Filter Logic
@@ -108,13 +160,14 @@ function getFilteredEvents() {
 // Render Event Cards
 function renderEvents() {
   const filtered = getFilteredEvents();
-  elements.resultsCount.textContent = `Showing ${filtered.length} event${filtered.length === 1 ? '' : 's'}`;
+  const countText = `Showing ${filtered.length} event${filtered.length === 1 ? '' : 's'}`;
+  elements.resultsCount.textContent = countText;
 
   if (filtered.length === 0) {
     elements.eventsGrid.innerHTML = '';
     elements.eventsGrid.hidden = true;
     elements.emptyState.hidden = false;
-    announce('No events found matching your criteria.');
+    announce('No events found matching your search. Use Reset All Filters button to view all.');
     return;
   }
 
@@ -180,7 +233,8 @@ function renderEvents() {
                 class="btn-detail" 
                 data-action="view-detail" 
                 data-id="${event.id}"
-                aria-haspopup="dialog">
+                aria-haspopup="dialog"
+                aria-label="View details for ${escapeHTML(event.title)}">
                 <span>Details</span>
                 ${icons.arrowRight}
               </button>
@@ -204,7 +258,7 @@ function renderScheduleDrawer() {
           ${icons.bookmarkOutline}
         </div>
         <h4 style="font-weight: 800; font-size: 1.15rem; margin-bottom: 0.35rem;">No saved events yet</h4>
-        <p style="font-size: 0.875rem; color: var(--color-text-muted); line-height: 1.5;">Click the bookmark icon on any campus event card to add it to your personal schedule.</p>
+        <p style="font-size: 0.875rem; color: var(--color-text-muted); line-height: 1.5;">Click the bookmark star on any campus event card to add it to your schedule.</p>
       </div>
     `;
     return;
@@ -218,7 +272,7 @@ function renderScheduleDrawer() {
         <li class="drawer-card">
           <div class="drawer-card-top">
             <span class="category-tag" data-cat="${ev.category}">${ev.category}</span>
-            <button type="button" class="btn-remove-drawer" data-remove-id="${ev.id}" title="Remove from schedule" aria-label="Remove ${ev.title}">
+            <button type="button" class="btn-remove-drawer" data-remove-id="${ev.id}" title="Remove from schedule" aria-label="Remove ${escapeHTML(ev.title)} from schedule">
               ${icons.trash}
             </button>
           </div>
@@ -237,10 +291,10 @@ function renderScheduleDrawer() {
           </div>
 
           <div class="drawer-card-actions">
-            <button type="button" class="btn-action-primary" data-action="view-detail" data-id="${ev.id}">
+            <button type="button" class="btn-action-primary" data-action="view-detail" data-id="${ev.id}" aria-label="View details for ${escapeHTML(ev.title)}">
               <span>View Details</span>
             </button>
-            <button type="button" class="btn-action-email" data-email-reminder-id="${ev.id}">
+            <button type="button" class="btn-action-email" data-email-reminder-id="${ev.id}" aria-label="Set email reminder for ${escapeHTML(ev.title)}">
               ${icons.mail}
               <span>Email Reminder</span>
             </button>
@@ -297,38 +351,59 @@ function syncModalBookmarkButton(eventId) {
   elements.modalBookmarkBtn.innerHTML = `${icon} <span>${label}</span>`;
 }
 
-// Drawer Open/Close
-function openScheduleDrawer() {
+// Drawer Open/Close with Focus Trap & Restoration
+function openScheduleDrawer(triggerEl = null) {
+  drawerTriggerElement = triggerEl || document.activeElement;
   renderScheduleDrawer();
   elements.drawerBackdrop.classList.add('is-open');
   elements.drawerBackdrop.setAttribute('aria-hidden', 'false');
+  elements.headerScheduleBtn.setAttribute('aria-expanded', 'true');
   document.body.style.overflow = 'hidden';
-  elements.drawerCloseBtn.focus();
+  
+  // Set focus to the close button inside the drawer
+  setTimeout(() => {
+    elements.drawerCloseBtn.focus();
+  }, 50);
+
   state.isDrawerOpen = true;
-  announce('Opened My Schedule drawer');
+  announce('Opened My Schedule drawer. Press Escape to close.');
 }
 
 function closeScheduleDrawer() {
   elements.drawerBackdrop.classList.remove('is-open');
   elements.drawerBackdrop.setAttribute('aria-hidden', 'true');
+  elements.headerScheduleBtn.setAttribute('aria-expanded', 'false');
+
   if (!state.activeEventModalId && !state.activeEmailReminderEventId) {
     document.body.style.overflow = '';
   }
   state.isDrawerOpen = false;
-  elements.headerScheduleBtn.focus();
+
+  // Restore focus to trigger
+  if (drawerTriggerElement && typeof drawerTriggerElement.focus === 'function') {
+    drawerTriggerElement.focus();
+  }
   announce('Closed My Schedule drawer');
 }
 
-// Email Reminder Modal
-function openEmailReminderModal(eventId) {
+// Email Reminder Modal with Validation, Focus Trap & Restoration
+function openEmailReminderModal(eventId, triggerEl = null) {
   const event = state.events.find(e => e.id === eventId);
   if (!event) return;
 
+  emailModalTriggerElement = triggerEl || document.activeElement;
   state.activeEmailReminderEventId = eventId;
   elements.emailPreviewEventTitle.textContent = event.title;
   elements.emailPreviewMeta.textContent = `${formatDate(event.date)} at ${event.time} • ${event.location}`;
 
-  // Pre-fill user email if previously entered
+  // Reset errors
+  if (elements.emailError) {
+    elements.emailError.textContent = '';
+    elements.emailError.hidden = true;
+  }
+  elements.emailInput.removeAttribute('aria-invalid');
+
+  // Pre-fill user email if remembered
   const rememberedEmail = localStorage.getItem('eventpulse_user_email') || '';
   elements.emailInput.value = rememberedEmail;
 
@@ -336,7 +411,10 @@ function openEmailReminderModal(eventId) {
   elements.emailModalBackdrop.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
-  elements.emailInput.focus();
+  setTimeout(() => {
+    elements.emailInput.focus();
+  }, 50);
+
   announce(`Open email reminder dialog for ${event.title}`);
 }
 
@@ -348,22 +426,36 @@ function closeEmailReminderModal() {
   if (!state.isDrawerOpen && !state.activeEventModalId) {
     document.body.style.overflow = '';
   }
+
+  // Restore focus to trigger
+  if (emailModalTriggerElement && typeof emailModalTriggerElement.focus === 'function') {
+    emailModalTriggerElement.focus();
+  }
   announce('Closed email reminder dialog');
 }
 
-// Handle Email Reminder Submission
+// Handle Email Reminder Submission with clear accessible error feedback
 function handleEmailReminderSubmit(e) {
   e.preventDefault();
   const email = elements.emailInput.value.trim();
-  if (!email || !state.activeEmailReminderEventId) return;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!email || !emailRegex.test(email)) {
+    if (elements.emailError) {
+      elements.emailError.textContent = 'Please enter a valid email address (e.g. name@university.edu).';
+      elements.emailError.hidden = false;
+    }
+    elements.emailInput.setAttribute('aria-invalid', 'true');
+    elements.emailInput.focus();
+    announce('Validation error: Please enter a valid email address.');
+    return;
+  }
 
   const event = state.events.find(ev => ev.id === state.activeEmailReminderEventId);
   if (!event) return;
 
-  // Remember email for ease of use
   localStorage.setItem('eventpulse_user_email', email);
 
-  // Generate mailto link for direct real email client dispatch with pre-filled reminder
   const subject = encodeURIComponent(`📅 Reminder: ${event.title}`);
   const body = encodeURIComponent(
     `Hi,\n\nHere is your campus event reminder for:\n` +
@@ -375,21 +467,18 @@ function handleEmailReminderSubmit(e) {
     `— EventPulse Campus Tech Event Finder`
   );
 
-  // Open default user email client (Gmail/Outlook/Apple Mail)
   window.location.href = `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`;
 
   closeEmailReminderModal();
   showToast(`Reminder created for ${email}!`, icons.check);
 }
 
-// Modal Management with Focus Control
-let lastFocusedElement = null;
-
-function openEventModal(eventId) {
+// Event Details Modal with Focus Trap & Restoration
+function openEventModal(eventId, triggerEl = null) {
   const event = state.events.find(e => e.id === eventId);
   if (!event) return;
 
-  lastFocusedElement = document.activeElement;
+  modalTriggerElement = triggerEl || document.activeElement;
   state.activeEventModalId = eventId;
 
   elements.modalTitle.textContent = event.title;
@@ -412,8 +501,11 @@ function openEventModal(eventId) {
   elements.modalBackdrop.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
-  elements.modalCloseBtn.focus();
-  announce(`Opened details for ${event.title}`);
+  setTimeout(() => {
+    elements.modalCloseBtn.focus();
+  }, 50);
+
+  announce(`Opened details dialog for ${event.title}. Press Escape to close.`);
 }
 
 function closeEventModal() {
@@ -426,8 +518,9 @@ function closeEventModal() {
   }
   state.activeEventModalId = null;
 
-  if (lastFocusedElement) {
-    lastFocusedElement.focus();
+  // Restore focus to trigger
+  if (modalTriggerElement && typeof modalTriggerElement.focus === 'function') {
+    modalTriggerElement.focus();
   }
   announce('Closed event details dialog.');
 }
@@ -447,7 +540,7 @@ function initEventListeners() {
       btn.setAttribute('aria-pressed', 'true');
       state.selectedCategory = btn.dataset.category;
       renderEvents();
-      announce(`Filtered by ${state.selectedCategory} events.`);
+      announce(`Filtered by ${state.selectedCategory} events. ${elements.resultsCount.textContent}`);
     });
   });
 
@@ -463,10 +556,13 @@ function initEventListeners() {
 
     renderEvents();
     elements.searchInput.focus();
+    announce('Filters reset. Showing all events.');
   });
 
   // Header "My Schedule" click opens Drawer!
-  elements.headerScheduleBtn.addEventListener('click', openScheduleDrawer);
+  elements.headerScheduleBtn.addEventListener('click', (e) => {
+    openScheduleDrawer(e.currentTarget);
+  });
   elements.drawerCloseBtn.addEventListener('click', closeScheduleDrawer);
   elements.drawerBackdrop.addEventListener('click', e => {
     if (e.target === elements.drawerBackdrop) {
@@ -484,13 +580,13 @@ function initEventListeners() {
 
     const emailBtn = e.target.closest('[data-email-reminder-id]');
     if (emailBtn) {
-      openEmailReminderModal(emailBtn.dataset.emailReminderId);
+      openEmailReminderModal(emailBtn.dataset.emailReminderId, emailBtn);
       return;
     }
 
     const detailBtn = e.target.closest('[data-action="view-detail"]');
     if (detailBtn) {
-      openEventModal(detailBtn.dataset.id);
+      openEventModal(detailBtn.dataset.id, detailBtn);
     }
   });
 
@@ -516,7 +612,7 @@ function initEventListeners() {
     const detailBtn = e.target.closest('[data-action="view-detail"]');
     if (detailBtn) {
       const id = detailBtn.dataset.id;
-      openEventModal(id);
+      openEventModal(id, detailBtn);
     }
   });
 
@@ -528,9 +624,9 @@ function initEventListeners() {
       toggleBookmark(state.activeEventModalId);
     }
   });
-  elements.modalRemindBtn.addEventListener('click', () => {
+  elements.modalRemindBtn.addEventListener('click', (e) => {
     if (state.activeEventModalId) {
-      openEmailReminderModal(state.activeEventModalId);
+      openEmailReminderModal(state.activeEventModalId, e.currentTarget);
     }
   });
 
@@ -541,8 +637,9 @@ function initEventListeners() {
     }
   });
 
-  // Keyboard trap & Escape dismissal
+  // Universal Keydown Listener: Escape to Dismiss & Tab Focus Traps
   document.addEventListener('keydown', e => {
+    // 1. Escape Key Dismissal (Hierarchical: Top-most layer first)
     if (e.key === 'Escape') {
       if (state.activeEmailReminderEventId) {
         closeEmailReminderModal();
@@ -551,6 +648,16 @@ function initEventListeners() {
       } else if (state.isDrawerOpen) {
         closeScheduleDrawer();
       }
+      return;
+    }
+
+    // 2. Focus Trap Enforcement
+    if (state.activeEmailReminderEventId) {
+      trapFocus(elements.emailModalCard, e);
+    } else if (state.activeEventModalId) {
+      trapFocus(elements.modalCard, e);
+    } else if (state.isDrawerOpen) {
+      trapFocus(elements.drawerPanel, e);
     }
   });
 }

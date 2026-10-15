@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    Base & Reset (Mobile-First)
    ========================================================================== */
 *, *::before, *::after {
@@ -796,6 +796,19 @@ body {
 .form-input:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 4px var(--color-primary-glow);
+}
+
+.form-input[aria-invalid="true"] {
+  border-color: var(--color-rose);
+  background-color: #fff1f2;
+}
+
+.form-error-msg {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--color-rose);
+  font-weight: 600;
+  margin-top: 0.35rem;
 }
 
 .email-preview-box {

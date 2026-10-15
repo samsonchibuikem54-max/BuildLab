@@ -1,4 +1,4 @@
-﻿# EventPulse 🎓⚡
+# EventPulse 🎓⚡
 > Discover, filter, and track campus & local tech events, workshops, and hackathons. Built with pure Vanilla HTML5, CSS3, and JavaScript for BuildLab Stage 1.
 
 ## 📌 Idea One-Pager
@@ -53,16 +53,20 @@ Because this project uses pure modern web standards, no bundlers or Node.js inst
    git clone https://github.com/<your-username>/BuildLab.git
    cd BuildLab
    ```
-2. Open `index.html` directly in any modern browser:
-   - Double click `index.html`, OR
-   - Run a local static server:
+2. Start a local static web server (required for JavaScript ES Module imports):
+   - Using Python (built into most systems):
      ```bash
-     # Using Python
      python -m http.server 8000
-     # Or using npx
+     ```
+   - OR using Node.js:
+     ```bash
      npx serve .
      ```
-3. Visit `http://localhost:8000` in your browser.
+   - OR using the VS Code "Live Server" extension (Right click `index.html` -> "Open with Live Server").
+3. Visit `http://localhost:8000` (or the port shown in your terminal) in your browser.
+
+> [!NOTE]
+> Modern browsers enforce CORS security policies on native ES Modules (`import`/`export`), which prevents scripts from loading when opening files directly via `file:///`. Running a local static server provides a seamless, standard-compliant experience without needing any build tools.
 
 ---
 
@@ -72,9 +76,14 @@ Because this project uses pure modern web standards, no bundlers or Node.js inst
    - As you type in the search box, the event list dynamically updates matching event titles, locations, and tags.
    - Clicking category pills (e.g., *Workshop*, *Hackathon*, *Meetup*, *Career*) filters events instantly.
    - If no events match, an accessible empty state with a "Reset Filters" action is displayed.
-2. **Event Detail Modal with Keyboard Trap**:
-   - Selecting "View Details" opens an accessible modal with full event agenda, speaker info, and prerequisites.
-   - The user can close it via the close button, clicking the backdrop, or pressing the `Escape` key.
-3. **Schedule Bookmark Toggle**:
-   - Clicking the bookmark icon on any event card toggles its saved status.
-   - The header badge updates its count in real time, with an accessible announcement.
+2. **Accessible Dialog Modals with Full Keyboard Focus Trap & Restoration**:
+   - Selecting "View Details" opens the event modal, while clicking "Email Reminder" opens the notification modal.
+   - **Focus Trap:** Tabbing wraps within the open dialog/drawer and prevents keyboard focus from escaping into background elements.
+   - **Focus Restoration:** Upon closing (via `Escape`, close button, or backdrop click), keyboard focus automatically returns to the button that triggered it.
+3. **Interactive Schedule Drawer with Persistence**:
+   - Clicking "My Schedule" slides open an accessible drawer listing all saved events.
+   - Saved bookmarks persist in `localStorage` across page reloads.
+   - Users can remove items with immediate visual and screen-reader confirmation.
+4. **Email Reminder Service & Form Validation**:
+   - Users can request a reminder with real-time email format validation and accessible inline error alerts.
+   - Generates pre-formatted calendar invites dispatched via native email clients.
