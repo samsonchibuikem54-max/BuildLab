@@ -1,4 +1,4 @@
-﻿import { initialEvents } from './data.js';
+import { initialEvents } from './data.js';
 import { icons } from './icons.js';
 
 // Application State
@@ -355,8 +355,8 @@ function syncModalBookmarkButton(eventId) {
 function openScheduleDrawer(triggerEl = null) {
   drawerTriggerElement = triggerEl || document.activeElement;
   renderScheduleDrawer();
+  elements.drawerBackdrop.hidden = false;
   elements.drawerBackdrop.classList.add('is-open');
-  elements.drawerBackdrop.setAttribute('aria-hidden', 'false');
   elements.headerScheduleBtn.setAttribute('aria-expanded', 'true');
   document.body.style.overflow = 'hidden';
   
@@ -371,7 +371,7 @@ function openScheduleDrawer(triggerEl = null) {
 
 function closeScheduleDrawer() {
   elements.drawerBackdrop.classList.remove('is-open');
-  elements.drawerBackdrop.setAttribute('aria-hidden', 'true');
+  elements.drawerBackdrop.hidden = true;
   elements.headerScheduleBtn.setAttribute('aria-expanded', 'false');
 
   if (!state.activeEventModalId && !state.activeEmailReminderEventId) {
@@ -407,8 +407,8 @@ function openEmailReminderModal(eventId, triggerEl = null) {
   const rememberedEmail = localStorage.getItem('eventpulse_user_email') || '';
   elements.emailInput.value = rememberedEmail;
 
+  elements.emailModalBackdrop.hidden = false;
   elements.emailModalBackdrop.classList.add('is-open');
-  elements.emailModalBackdrop.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
   setTimeout(() => {
@@ -420,7 +420,7 @@ function openEmailReminderModal(eventId, triggerEl = null) {
 
 function closeEmailReminderModal() {
   elements.emailModalBackdrop.classList.remove('is-open');
-  elements.emailModalBackdrop.setAttribute('aria-hidden', 'true');
+  elements.emailModalBackdrop.hidden = true;
   state.activeEmailReminderEventId = null;
 
   if (!state.isDrawerOpen && !state.activeEventModalId) {
@@ -497,8 +497,8 @@ function openEventModal(eventId, triggerEl = null) {
 
   syncModalBookmarkButton(eventId);
 
+  elements.modalBackdrop.hidden = false;
   elements.modalBackdrop.classList.add('is-open');
-  elements.modalBackdrop.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
   setTimeout(() => {
@@ -512,7 +512,7 @@ function closeEventModal() {
   if (!state.activeEventModalId) return;
 
   elements.modalBackdrop.classList.remove('is-open');
-  elements.modalBackdrop.setAttribute('aria-hidden', 'true');
+  elements.modalBackdrop.hidden = true;
   if (!state.isDrawerOpen && !state.activeEmailReminderEventId) {
     document.body.style.overflow = '';
   }

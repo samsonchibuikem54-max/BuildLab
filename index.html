@@ -6,6 +6,9 @@
   <title>EventPulse — Campus & Local Tech Event Finder</title>
   <meta name="description" content="Discover, search, and save campus tech events, hackathons, and workshops.">
 
+  <!-- Favicon (Inline SVG to prevent 404) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><path d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/></svg>" type="image/svg+xml">
+
   <!-- Inter Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -128,7 +131,7 @@
   </main>
 
   <!-- Slide-out Schedule Drawer Panel -->
-  <div id="schedule-drawer-backdrop" class="drawer-backdrop" role="dialog" aria-modal="true" aria-labelledby="drawer-title" aria-hidden="true">
+  <div id="schedule-drawer-backdrop" class="drawer-backdrop" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
     <div class="drawer-panel">
       <div class="drawer-header">
         <div class="drawer-title-group">
@@ -153,7 +156,7 @@
     role="dialog" 
     aria-modal="true" 
     aria-labelledby="email-modal-title" 
-    aria-hidden="true">
+    hidden>
     <div class="modal-content email-modal-card">
       <div class="modal-header">
         <div>
@@ -206,7 +209,7 @@
     role="dialog" 
     aria-modal="true" 
     aria-labelledby="modal-title" 
-    aria-hidden="true">
+    hidden>
     <div class="modal-content">
       <div class="modal-header">
         <div>
