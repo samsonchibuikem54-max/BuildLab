@@ -257,8 +257,8 @@ After adding the screenshots, you can display them here:
 
 - **GitHub Repository:** [https://github.com/samsonchibuikem54-max/BuildLab](https://github.com/samsonchibuikem54-max/BuildLab)
 - **Live Application (Vercel):** [https://eventpulse-lime.vercel.app/](https://eventpulse-lime.vercel.app/)
-- **Idea One-Pager:** `docs/idea-one-pager.md`
-- **Work Plan:** `docs/work-plan.md`
+- **Idea One-Pager:** [docs/idea-one-pager.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/idea-one-pager.md)
+- **Work Plan:** [docs/work-plan.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/work-plan.md)
 
 ## 13. Development Notes
 
