@@ -1042,3 +1042,86 @@ body {
     max-width: 480px;
   }
 }
+
+/* ==========================================================================
+   Loading Skeleton Cards (Week 2)
+   ========================================================================== */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-grid {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: 1fr;
+  padding-bottom: var(--space-10);
+}
+
+@media (min-width: 640px) {
+  .skeleton-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .skeleton-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.skeleton-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skeleton-line {
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 25%,
+    var(--color-bg-body) 50%,
+    var(--color-border) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.skeleton-tag   { height: 1.25rem; width: 5rem; }
+.skeleton-title { height: 1.4rem;  width: 85%;  margin-top: 0.25rem; }
+.skeleton-meta  { height: 0.9rem;  width: 70%; }
+.skeleton-desc  { height: 0.85rem; width: 95%; }
+.skeleton-line.short { width: 55%; }
+
+/* ==========================================================================
+   Error State (Week 2)
+   ========================================================================== */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-16) var(--space-4);
+  gap: var(--space-4);
+}
+
+.error-icon-wrapper .icon {
+  width: 3rem;
+  height: 3rem;
+  stroke: var(--color-error, #dc2626);
+  opacity: 0.7;
+}
+
+.error-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.error-desc {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  max-width: 36ch;
+  line-height: 1.6;
+}
+

@@ -87,14 +87,23 @@ EventPulse/
 ├── index.html
 ├── README.md
 │
+├── data/
+│   └── events.json
+│
 ├── docs/
 │   ├── idea-one-pager.md
-│   └── work-plan.md
+│   ├── work-plan.md
+│   ├── issue-log.md
+│   └── screenshots/
 │
 ├── scripts/
 │   ├── app.js
-│   ├── data.js
-│   └── icons.js
+│   ├── utils.js
+│   ├── icons.js
+│   └── components/
+│       ├── EventCard.js
+│       ├── FilterBar.js
+│       └── EventModal.js
 │
 └── styles/
     ├── main.css
@@ -103,14 +112,20 @@ EventPulse/
 
 ### File Responsibilities
 
-- `index.html`: Contains the main HTML structure.
-- `styles/main.css`: Contains the main layout, component styles, and responsive styling.
-- `styles/variables.css`: Defines reusable CSS variables, including colours and spacing.
-- `scripts/app.js`: Handles application state, user interactions, search, filtering, focus trapping, and modal behaviours.
-- `scripts/data.js`: Contains the initial sample event data.
-- `scripts/icons.js`: Provides reusable SVG icons.
-- `docs/idea-one-pager.md`: Describes the project idea, target users, problem, scope, and risks.
-- `docs/work-plan.md`: Outlines the development plan for the three-week programme.
+- `index.html`: Main HTML structure including loading skeleton, error state, and dialog templates.
+- `styles/main.css`: Layout, component styles, skeleton animations, error state, and responsive breakpoints.
+- `styles/variables.css`: Reusable CSS custom properties for colours, spacing, and typography.
+- `scripts/app.js`: Application orchestrator — async data fetch, top-level state, and component wiring.
+- `scripts/utils.js`: Shared helpers (`escapeHTML`, `formatDate`, `trapFocus`).
+- `scripts/icons.js`: Reusable inline SVG icon strings.
+- `scripts/components/EventCard.js`: Pure function that returns HTML for a single event card.
+- `scripts/components/FilterBar.js`: Owns search input and category pill filter interactions.
+- `scripts/components/EventModal.js`: Owns Event Detail modal open/close/populate/focus logic.
+- `data/events.json`: Event data loaded asynchronously via `fetch()` on startup.
+- `docs/idea-one-pager.md`: Project idea, target users, problem statement, scope, and risks.
+- `docs/work-plan.md`: Three-week development plan and delivery milestones.
+- `docs/issue-log.md`: Documented bugs and technical challenges with root causes and fixes.
+
 
 ## 5. How to Run Locally
 
@@ -259,6 +274,7 @@ After adding the screenshots, you can display them here:
 - **Live Application (Vercel):** [https://eventpulse-lime.vercel.app/](https://eventpulse-lime.vercel.app/)
 - **Idea One-Pager:** [docs/idea-one-pager.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/idea-one-pager.md)
 - **Work Plan:** [docs/work-plan.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/work-plan.md)
+- **Issue Log:** [docs/issue-log.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/issue-log.md)
 
 ## 13. Development Notes
 

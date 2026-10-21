@@ -110,12 +110,74 @@
       <div class="container">
         <h2 id="events-heading" class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">Event Listings</h2>
 
-        <!-- Event Cards Grid -->
-        <ul id="events-grid" class="events-grid" aria-label="Tech events list">
+        <!-- Loading Skeleton State (shown while fetch is in progress) -->
+        <div id="loading-state" class="skeleton-grid" aria-label="Loading events" aria-busy="true">
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-line skeleton-tag"></div>
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-meta"></div>
+            <div class="skeleton-line skeleton-meta short"></div>
+            <div class="skeleton-line skeleton-desc"></div>
+            <div class="skeleton-line skeleton-desc short"></div>
+          </div>
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-line skeleton-tag"></div>
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-meta"></div>
+            <div class="skeleton-line skeleton-meta short"></div>
+            <div class="skeleton-line skeleton-desc"></div>
+            <div class="skeleton-line skeleton-desc short"></div>
+          </div>
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-line skeleton-tag"></div>
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-meta"></div>
+            <div class="skeleton-line skeleton-meta short"></div>
+            <div class="skeleton-line skeleton-desc"></div>
+            <div class="skeleton-line skeleton-desc short"></div>
+          </div>
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-line skeleton-tag"></div>
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-meta"></div>
+            <div class="skeleton-line skeleton-meta short"></div>
+            <div class="skeleton-line skeleton-desc"></div>
+            <div class="skeleton-line skeleton-desc short"></div>
+          </div>
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-line skeleton-tag"></div>
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-meta"></div>
+            <div class="skeleton-line skeleton-meta short"></div>
+            <div class="skeleton-line skeleton-desc"></div>
+            <div class="skeleton-line skeleton-desc short"></div>
+          </div>
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-line skeleton-tag"></div>
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-meta"></div>
+            <div class="skeleton-line skeleton-meta short"></div>
+            <div class="skeleton-line skeleton-desc"></div>
+            <div class="skeleton-line skeleton-desc short"></div>
+          </div>
+        </div>
+
+        <!-- Error State (shown if fetch fails) -->
+        <div id="error-state" class="error-state" hidden>
+          <div class="error-icon-wrapper" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h3 class="error-title">Could not load events</h3>
+          <p class="error-desc">Something went wrong while fetching the events. Please check your connection and try again.</p>
+          <button type="button" id="retry-btn" class="btn-detail">Try Again</button>
+        </div>
+
+        <!-- Event Cards Grid (populated by JS) -->
+        <ul id="events-grid" class="events-grid" aria-label="Tech events list" hidden>
           <!-- Rendered dynamically by scripts/app.js -->
         </ul>
 
-        <!-- Empty State (Hidden by default) -->
+        <!-- Empty State (shown when search/filter returns no results) -->
         <div id="empty-state" class="empty-state" hidden>
           <div class="empty-icon-wrapper" aria-hidden="true">
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -129,6 +191,8 @@
     </section>
 
   </main>
+
+
 
   <!-- Slide-out Schedule Drawer Panel -->
   <div id="schedule-drawer-backdrop" class="drawer-backdrop" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
