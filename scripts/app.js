@@ -1,4 +1,4 @@
-﻿/**
+/**
  * EventPulse — Main Application Orchestrator (Week 2 refactor)
  *
  * Responsibilities:
@@ -438,7 +438,7 @@ function initEventListeners() {
 async function loadEvents() {
   showLoading();
   try {
-    const res = await fetch('./data/events.json');
+    const res = await fetch('/data/events.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     state.events = await res.json();
     showEvents();
