@@ -455,6 +455,7 @@ async function loadEvents() {
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   setupEventModal();
+  initEventListeners();
 
   // Init FilterBar — it drives state.searchQuery & state.selectedCategory
   initFilterBar(({ query, category }) => {
@@ -467,3 +468,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadEvents();
 });
+
