@@ -271,10 +271,14 @@ After adding the screenshots, you can display them here:
 ## 12. Project Links
 
 - **GitHub Repository:** [https://github.com/samsonchibuikem54-max/BuildLab](https://github.com/samsonchibuikem54-max/BuildLab)
-- **Live Application (Vercel):** [https://eventpulse-lime.vercel.app/](https://eventpulse-lime.vercel.app/)
+- **Live Application (Vercel Root):** [https://eventpulse-lime.vercel.app/](https://eventpulse-lime.vercel.app/)
+- **Task 1 (Live):** [https://eventpulse-lime.vercel.app/task-1/](https://eventpulse-lime.vercel.app/task-1/)
+- **Task 2 (Live):** [https://eventpulse-lime.vercel.app/task-2/](https://eventpulse-lime.vercel.app/task-2/)
+- **Task 2 (404 Page Live):** [https://eventpulse-lime.vercel.app/task-2/404.html](https://eventpulse-lime.vercel.app/task-2/404.html)
 - **Idea One-Pager:** [docs/idea-one-pager.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/idea-one-pager.md)
 - **Work Plan:** [docs/work-plan.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/work-plan.md)
 - **Issue Log:** [docs/issue-log.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/issue-log.md)
+
 
 ## 13. Development Notes
 
