@@ -268,6 +268,9 @@ After adding the screenshots, you can display them here:
 ### Desktop View
 ![EventPulse Desktop View](docs/screenshots/eventpulse-desktop.png)
 
+### UI/UX Design System Mockup
+![EventPulse UI/UX Design System](docs/screenshots/eventpulse-ui-design.jpg)
+
 ## 12. Project Links
 
 - **GitHub Repository:** [https://github.com/samsonchibuikem54-max/BuildLab](https://github.com/samsonchibuikem54-max/BuildLab)
@@ -278,10 +281,12 @@ After adding the screenshots, you can display them here:
 - **Task 3 (Live with Hash Router):** [https://eventpulse-lime.vercel.app/task-3/](https://eventpulse-lime.vercel.app/task-3/)
 - **Task 3 (Automated Test Runner Live):** [https://eventpulse-lime.vercel.app/task-3/tests/test-runner.html](https://eventpulse-lime.vercel.app/task-3/tests/test-runner.html)
 - **Task 3 (404 Page Live):** [https://eventpulse-lime.vercel.app/task-3/404.html](https://eventpulse-lime.vercel.app/task-3/404.html)
+- **UI/UX Design Specification:** [docs/ui-ux-design.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/ui-ux-design.md)
 - **Idea One-Pager:** [docs/idea-one-pager.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/idea-one-pager.md)
 - **Work Plan:** [docs/work-plan.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/work-plan.md)
 - **Issue Log:** [docs/issue-log.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/issue-log.md)
 - **Accessibility Audit:** [task-3/docs/accessibility-audit.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/task-3/docs/accessibility-audit.md)
+
 
 
 
