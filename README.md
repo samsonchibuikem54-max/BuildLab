@@ -275,9 +275,14 @@ After adding the screenshots, you can display them here:
 - **Task 1 (Live):** [https://eventpulse-lime.vercel.app/task-1/](https://eventpulse-lime.vercel.app/task-1/)
 - **Task 2 (Live):** [https://eventpulse-lime.vercel.app/task-2/](https://eventpulse-lime.vercel.app/task-2/)
 - **Task 2 (404 Page Live):** [https://eventpulse-lime.vercel.app/task-2/404.html](https://eventpulse-lime.vercel.app/task-2/404.html)
+- **Task 3 (Live with Hash Router):** [https://eventpulse-lime.vercel.app/task-3/](https://eventpulse-lime.vercel.app/task-3/)
+- **Task 3 (Automated Test Runner Live):** [https://eventpulse-lime.vercel.app/task-3/tests/test-runner.html](https://eventpulse-lime.vercel.app/task-3/tests/test-runner.html)
+- **Task 3 (404 Page Live):** [https://eventpulse-lime.vercel.app/task-3/404.html](https://eventpulse-lime.vercel.app/task-3/404.html)
 - **Idea One-Pager:** [docs/idea-one-pager.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/idea-one-pager.md)
 - **Work Plan:** [docs/work-plan.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/work-plan.md)
 - **Issue Log:** [docs/issue-log.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/docs/issue-log.md)
+- **Accessibility Audit:** [task-3/docs/accessibility-audit.md](https://github.com/samsonchibuikem54-max/BuildLab/blob/main/task-3/docs/accessibility-audit.md)
+
 
 
 ## 13. Development Notes

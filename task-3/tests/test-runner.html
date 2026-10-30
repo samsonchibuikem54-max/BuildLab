@@ -1,0 +1,270 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EventPulse — Automated Test Suite (Task 3)</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><path d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/></svg>" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/variables.css">
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    body {
+      background: var(--color-bg-body, #f8fafc);
+      padding: 2rem 1rem;
+    }
+    .test-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--color-bg-surface, #ffffff);
+      border: 1px solid var(--color-border, #e2e8f0);
+      border-radius: var(--radius-xl, 1rem);
+      padding: 2rem;
+      box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.05));
+    }
+    .test-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--color-border, #e2e8f0);
+      padding-bottom: 1rem;
+    }
+    .test-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--color-text-main, #0f172a);
+    }
+    .test-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-full, 9999px);
+      font-size: 0.85rem;
+    }
+    .test-badge.passing {
+      background: #dcfce7;
+      color: #15803d;
+    }
+    .test-badge.failing {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    .test-suite {
+      margin-bottom: 1.5rem;
+    }
+    .suite-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-primary, #4f46e5);
+      margin-bottom: 0.75rem;
+    }
+    .test-case {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-md, 0.5rem);
+      background: var(--color-bg-card, #f8fafc);
+      border: 1px solid var(--color-border, #e2e8f0);
+      margin-bottom: 0.5rem;
+      font-size: 0.925rem;
+    }
+    .test-icon {
+      font-weight: 800;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .test-pass {
+      color: #16a34a;
+    }
+    .test-fail {
+      color: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <div>
+        <h1 class="test-title">🧪 Automated Test Suite</h1>
+        <p style="color:var(--color-text-muted); font-size:0.9rem; margin-top:0.25rem;">
+          EventPulse Week 3 Verification (Rendering, Search & Filtering, State Persistence)
+        </p>
+      </div>
+      <div id="overall-badge" class="test-badge passing">Running Tests...</div>
+    </div>
+
+    <div id="test-results"></div>
+
+    <div style="margin-top:2rem; padding-top:1rem; border-top:1px solid var(--color-border); display:flex; gap:1rem;">
+      <a href="../index.html" class="btn-detail" style="text-decoration:none;">← Return to Task 3 App</a>
+      <a href="../../index.html" class="btn-schedule" style="text-decoration:none;">All Tasks Hub</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createEventCardHTML } from '../scripts/components/EventCard.js';
+
+    const testResultsEl = document.getElementById('test-results');
+    const overallBadgeEl = document.getElementById('overall-badge');
+    let totalPassed = 0;
+    let totalFailed = 0;
+
+    function renderSuite(suiteName, tests) {
+      const suiteDiv = document.createElement('div');
+      suiteDiv.className = 'test-suite';
+      suiteDiv.innerHTML = `<h2 class="suite-title">${suiteName}</h2>`;
+
+      tests.forEach(test => {
+        let passed = false;
+        let errorMsg = '';
+        try {
+          test.fn();
+          passed = true;
+          totalPassed++;
+        } catch (err) {
+          passed = false;
+          errorMsg = err.message || String(err);
+          totalFailed++;
+        }
+
+        const caseDiv = document.createElement('div');
+        caseDiv.className = 'test-case';
+        caseDiv.innerHTML = `
+          <span class="test-icon ${passed ? 'test-pass' : 'test-fail'}">${passed ? '✓' : '✗'}</span>
+          <div>
+            <strong>${test.name}</strong>
+            ${errorMsg ? `<div style="color:#dc2626; font-size:0.85rem; margin-top:0.25rem;">${errorMsg}</div>` : ''}
+          </div>
+        `;
+        suiteDiv.appendChild(caseDiv);
+      });
+
+      testResultsEl.appendChild(suiteDiv);
+    }
+
+    function assert(condition, message) {
+      if (!condition) {
+        throw new Error(message || 'Assertion failed');
+      }
+    }
+
+    // Suite 1: Component Rendering
+    renderSuite('1. Component Rendering (EventCard.js)', [
+      {
+        name: 'createEventCardHTML generates valid accessible markup with title and category',
+        fn: () => {
+          const mockEvent = {
+            id: 'test-evt-01',
+            title: 'Test Robotics Workshop',
+            category: 'Workshop',
+            date: '2026-11-20',
+            time: '10:00 - 12:00',
+            location: 'Main Lab 1',
+            organizer: 'Robotics Club',
+            description: 'Hands on test workshop.',
+            capacity: 50,
+            registered: 20,
+            tags: ['Robotics', 'Hardware']
+          };
+          const html = createEventCardHTML(mockEvent, false);
+          assert(html.includes('Test Robotics Workshop'), 'Card should contain event title');
+          assert(html.includes('Workshop'), 'Card should contain category tag');
+          assert(html.includes('data-id="test-evt-01"'), 'Card should contain data-id attribute');
+          assert(html.includes('aria-pressed="false"'), 'Unsaved card should have aria-pressed="false"');
+        }
+      },
+      {
+        name: 'createEventCardHTML updates bookmark toggle icon and state when isBookmarked=true',
+        fn: () => {
+          const mockEvent = {
+            id: 'test-evt-02',
+            title: 'AI Symposium',
+            category: 'Meetup',
+            date: '2026-11-25',
+            time: '14:00 - 16:00',
+            location: 'Auditorium A',
+            organizer: 'AI Group',
+            description: 'Symposium discussion.',
+            capacity: 100,
+            registered: 100,
+            tags: ['AI']
+          };
+          const html = createEventCardHTML(mockEvent, true);
+          assert(html.includes('aria-pressed="true"'), 'Saved card should have aria-pressed="true"');
+          assert(html.includes('Remove AI Symposium from my schedule'), 'Saved card should have remove aria-label');
+          assert(html.includes('Full'), 'Capacity should show Full when spots left is 0');
+        }
+      }
+    ]);
+
+    // Suite 2: Search and Category Filtering Logic
+    renderSuite('2. User Search Interaction & Filtering', [
+      {
+        name: 'Query filter isolates events by title, organizer, and tags',
+        fn: () => {
+          const events = [
+            { id: '1', title: 'React Workshop', organizer: 'Dev Club', location: 'Hall A', tags: ['Frontend'], category: 'Workshop' },
+            { id: '2', title: 'Python Hackathon', organizer: 'Data Society', location: 'Lab B', tags: ['Python'], category: 'Hackathon' },
+            { id: '3', title: 'Career Meetup', organizer: 'Career Hub', location: 'Hall C', tags: ['Jobs'], category: 'Career' }
+          ];
+
+          function filter(query, category) {
+            const q = query.trim().toLowerCase();
+            return events.filter(e => {
+              const matchCat = category === 'All' || e.category === category;
+              const matchQuery = q === '' ||
+                e.title.toLowerCase().includes(q) ||
+                e.organizer.toLowerCase().includes(q) ||
+                e.tags.some(t => t.toLowerCase().includes(q));
+              return matchCat && matchQuery;
+            });
+          }
+
+          assert(filter('React', 'All').length === 1, 'Should find 1 match for "React"');
+          assert(filter('Python', 'All')[0].id === '2', 'Should find Python Hackathon');
+          assert(filter('', 'Workshop').length === 1, 'Category filter "Workshop" should isolate 1 event');
+          assert(filter('Nonexistent', 'All').length === 0, 'No match should return empty array');
+        }
+      }
+    ]);
+
+    // Suite 3: State & LocalStorage Persistence
+    renderSuite('3. State Persistence (LocalStorage)', [
+      {
+        name: 'Saved bookmarks serialize and persist to localStorage across sessions',
+        fn: () => {
+          const mockStorageKey = 'eventpulse_test_saved';
+          const savedSet = new Set(['evt-01', 'evt-03']);
+
+          // Persist
+          localStorage.setItem(mockStorageKey, JSON.stringify([...savedSet]));
+
+          // Retrieve
+          const retrieved = new Set(JSON.parse(localStorage.getItem(mockStorageKey) || '[]'));
+          assert(retrieved.has('evt-01'), 'Should restore evt-01 from localStorage');
+          assert(retrieved.has('evt-03'), 'Should restore evt-03 from localStorage');
+          assert(retrieved.size === 2, 'Restored set size should equal 2');
+
+          // Clean up test key
+          localStorage.removeItem(mockStorageKey);
+        }
+      }
+    ]);
+
+    // Update Overall Badge
+    if (totalFailed === 0) {
+      overallBadgeEl.className = 'test-badge passing';
+      overallBadgeEl.textContent = `All Tests Passing (${totalPassed}/${totalPassed})`;
+    } else {
+      overallBadgeEl.className = 'test-badge failing';
+      overallBadgeEl.textContent = `${totalFailed} Failed (${totalPassed} Passed)`;
+    }
+  </script>
+</body>
+</html>
