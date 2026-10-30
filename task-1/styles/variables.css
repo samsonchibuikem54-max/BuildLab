@@ -1,4 +1,4 @@
-﻿/* Design Tokens & Theme Variables */
+/* Design Tokens & Theme Variables */
 :root {
   /* Brand Primary Colors */
   --color-primary: #4f46e5;       /* Modern Indigo 600 */
@@ -14,10 +14,11 @@
   --color-rose-light: #ffe4e6;
 
   /* Surfaces & Backgrounds */
-  --color-bg-body: #f8fafc;       /* Slate 50 */
+  --color-bg-body: #f1f5f9;       /* Modern Slate 100 with cooler tint */
   --color-bg-surface: #ffffff;
-  --color-bg-subtle: #f1f5f9;     /* Slate 100 */
+  --color-bg-subtle: #e2e8f0;     /* Slate 200 */
   --color-bg-elevated: #ffffff;
+
 
   /* Typography Colors (WCAG AA Compliant) */
   --color-text-main: #0f172a;     /* Slate 900 */

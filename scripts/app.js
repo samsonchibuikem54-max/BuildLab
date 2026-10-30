@@ -1,3 +1,32 @@
+
+// Dropdown menu toggle helper
+function initTasksDropdown() {
+  const container = document.getElementById('tasks-dropdown');
+  const btn = document.getElementById('tasks-dropdown-btn');
+  if (!container || !btn) return;
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = container.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) {
+      container.classList.remove('is-open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && container.classList.contains('is-open')) {
+      container.classList.remove('is-open');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.focus();
+    }
+  });
+}
+
 /**
  * EventPulse — Main Application Orchestrator (Week 2 refactor)
  *
@@ -454,6 +483,7 @@ async function loadEvents() {
 // App Initialisation
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
+  initTasksDropdown();
   setupEventModal();
   initEventListeners();
 

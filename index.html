@@ -40,15 +40,36 @@
       </a>
 
       <nav class="nav-actions" aria-label="Quick Actions">
-        <a href="task-1/index.html" class="btn-schedule" style="text-decoration:none; font-size:0.85rem;" title="Go to Task 1">
-          <span>Task 1</span>
-        </a>
-        <a href="task-2/index.html" class="btn-schedule" style="text-decoration:none; font-size:0.85rem;" title="Go to Task 2">
-          <span>Task 2</span>
-        </a>
-        <a href="task-3/index.html" class="btn-schedule" style="text-decoration:none; font-size:0.85rem;" title="Go to Task 3">
-          <span>Task 3</span>
-        </a>
+        <!-- Tasks Switcher Dropdown Menu -->
+        <div class="tasks-dropdown-container" id="tasks-dropdown">
+          <button type="button" class="tasks-dropdown-btn" id="tasks-dropdown-btn" aria-haspopup="true" aria-expanded="false" aria-label="Switch between BuildLab tasks">
+            <span>Select Task</span>
+            <svg class="icon icon-sm dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="tasks-dropdown-menu" id="tasks-dropdown-menu" role="menu" aria-label="BuildLab Tasks">
+            <a href="index.html" class="tasks-dropdown-item is-current" role="menuitem">
+              <span>All Tasks Hub</span>
+              <span class="dropdown-badge">Home</span>
+            </a>
+            <a href="task-1/index.html" class="tasks-dropdown-item" role="menuitem">
+              <span>Task 1</span>
+              <span class="dropdown-badge">Foundations</span>
+            </a>
+            <a href="task-2/index.html" class="tasks-dropdown-item" role="menuitem">
+              <span>Task 2</span>
+              <span class="dropdown-badge">Components</span>
+            </a>
+            <a href="task-3/index.html" class="tasks-dropdown-item" role="menuitem">
+              <span>Task 3</span>
+              <span class="dropdown-badge">Routing & A11y</span>
+            </a>
+            <a href="task-3/tests/test-runner.html" class="tasks-dropdown-item" role="menuitem">
+              <span>Automated Tests</span>
+              <span class="dropdown-badge">🧪</span>
+            </a>
+          </div>
+        </div>
+
         <!-- Clickable My Schedule Header Button -->
         <button type="button" class="btn-schedule" id="header-schedule-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="Open my saved events schedule">
 
